@@ -1,0 +1,38 @@
+[2024-01-05T19:16:44.951+0000] {taskinstance.py:1957} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: mysql_to_postgres.transfer_country_data manual__2024-01-05T19:16:42.442884+00:00 [queued]>
+[2024-01-05T19:16:44.960+0000] {taskinstance.py:1957} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: mysql_to_postgres.transfer_country_data manual__2024-01-05T19:16:42.442884+00:00 [queued]>
+[2024-01-05T19:16:44.961+0000] {taskinstance.py:2171} INFO - Starting attempt 1 of 4
+[2024-01-05T19:16:44.979+0000] {taskinstance.py:2192} INFO - Executing <Task(PythonOperator): transfer_country_data> on 2024-01-05 19:16:42.442884+00:00
+[2024-01-05T19:16:44.998+0000] {standard_task_runner.py:60} INFO - Started process 271 to run task
+[2024-01-05T19:16:45.018+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'mysql_to_postgres', 'transfer_country_data', 'manual__2024-01-05T19:16:42.442884+00:00', '--job-id', '3', '--raw', '--subdir', 'DAGS_FOLDER/mysql_to_postgres.py', '--cfg-path', '/tmp/tmpnex7n8n7']
+[2024-01-05T19:16:45.028+0000] {standard_task_runner.py:88} INFO - Job 3: Subtask transfer_country_data
+[2024-01-05T19:16:45.129+0000] {logging_mixin.py:188} WARNING - /home/airflow/.local/lib/python3.8/site-packages/airflow/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.
+[2024-01-05T19:16:45.303+0000] {task_command.py:423} INFO - Running <TaskInstance: mysql_to_postgres.transfer_country_data manual__2024-01-05T19:16:42.442884+00:00 [running]> on host fbede92b3806
+[2024-01-05T19:16:45.497+0000] {taskinstance.py:2481} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='mysql_to_postgres' AIRFLOW_CTX_TASK_ID='transfer_country_data' AIRFLOW_CTX_EXECUTION_DATE='2024-01-05T19:16:42.442884+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2024-01-05T19:16:42.442884+00:00'
+[2024-01-05T19:16:45.783+0000] {logging_mixin.py:188} INFO - Error: connection to server at "postgres" (172.19.0.2), port 5432 failed: FATAL:  password authentication failed for user "fadhel"
+[2024-01-05T19:16:45.784+0000] {taskinstance.py:2699} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/opt/airflow/dags/mysql_to_postgres.py", line 31, in transfer_data
+    postgres_conn = psycopg2.connect(
+  File "/home/airflow/.local/lib/python3.8/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: connection to server at "postgres" (172.19.0.2), port 5432 failed: FATAL:  password authentication failed for user "fadhel"
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/mysql_to_postgres.py", line 49, in transfer_data
+    raise AirflowFailException(f"Failed to transfer data: {str(e)}")
+airflow.exceptions.AirflowFailException: Failed to transfer data: connection to server at "postgres" (172.19.0.2), port 5432 failed: FATAL:  password authentication failed for user "fadhel"
+
+[2024-01-05T19:16:45.801+0000] {taskinstance.py:1138} INFO - Immediate failure requested. Marking task as FAILED. dag_id=mysql_to_postgres, task_id=transfer_country_data, execution_date=20240105T191642, start_date=20240105T191644, end_date=20240105T191645
+[2024-01-05T19:16:45.811+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 3 for task transfer_country_data (Failed to transfer data: connection to server at "postgres" (172.19.0.2), port 5432 failed: FATAL:  password authentication failed for user "fadhel"
+; 271)
+[2024-01-05T19:16:45.825+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2024-01-05T19:16:45.840+0000] {taskinstance.py:3281} INFO - 0 downstream tasks scheduled from follow-on schedule check

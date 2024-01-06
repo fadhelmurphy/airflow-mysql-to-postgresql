@@ -1,0 +1,127 @@
+version: '3'
+x-airflow-common: &airflow-common
+  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.3.3}
+  restart: always
+  environment:
+    &airflow-common-env
+    # EXECUTOR: Celery
+    LOAD_EX: n
+    _AIRFLOW_DB_MIGRATE: "true"
+    _AIRFLOW_WWW_USER_CREATE: "true"
+    _AIRFLOW_WWW_USER_USERNAME: admin
+    _AIRFLOW_WWW_USER_PASSWORD: admin
+    # AIRFLOW__CORE__SQL_ALCHEMY_CONN: mysql+pymysql://root:root@mysql:3306/sakila
+    # AIRFLOW__CORE__SQL_ALCHEMY_CONN_PG: postgresql+psycopg2://root:root@postgres:5432/sakila
+    AIRFLOW__CELERY__RESULT_BACKEND: db+mysql://root:root@mysql:3306/airflow
+    # AIRFLOW__CELERY__BROKER_URL: pyamqp://root:root@rabbitmq:5672//
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+
+services:
+
+  airflow-webserver:
+    <<: *airflow-common
+    build:
+      # context: ./airflow  # Rute ke direktori yang berisi Dockerfile khusus
+      dockerfile: Dockerfile-airflow  # Nama Dockerfile khusus untuk Airflow
+    restart: always
+    command: >
+      bash -c "airflow db upgrade && airflow scheduler -D && airflow webserver"
+    ports:
+      - "8080:8080"
+    environment:
+      <<: *airflow-common-env
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+    depends_on:
+      - mysql
+      - postgres
+      - phpmyadmin
+      - pgadmin
+    # healthcheck:
+    #   test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+    #   interval: 30s
+    #   timeout: 30s
+    #   retries: 32
+
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      # - MYSQL_DATABASE=sakila
+      - MYSQL_USER=my_user
+      - MYSQL_PASSWORD=my_password
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./sql/mysql:/docker-entrypoint-initdb.d
+    # command: mysqld --user=root
+    command: --init-file=/docker-entrypoint-initdb.d/sakila-data.sql
+    ports:
+      - "3306:3306"
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      # - POSTGRES_DB=sakila
+      - POSTGRES_USER=fadhel
+      - POSTGRES_PASSWORD=root
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+      - ./sql/psql/psql-sakila-schema.sql:/docker-entrypoint-initdb.d/psql-sakila-schema.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    environment:
+      - PMA_HOST=mysql
+      - MYSQL_ROOT_PASSWORD=root
+      - PMA_ABSOLUTE_URI=http://nginx/mysql-admin  # Ubah absolute URI ke prefix yang baru
+    depends_on:
+      - mysql
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - SCRIPT_NAME=/pg-admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    labels:
+      - "traefik.frontend.rule=PathPrefix:/pg-admin" 
+    depends_on:
+      - postgres
+
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx-conf:/etc/nginx/conf.d
+    depends_on:
+      - phpmyadmin
+      - pgadmin    
+
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   restart: always
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: root
+  #     RABBITMQ_DEFAULT_PASS: root
+
+volumes: #define our mysql volume used above
+    mysql-data:
+    postgresql-data:
+    pgadmin-data:

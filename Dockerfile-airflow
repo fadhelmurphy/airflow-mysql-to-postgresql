@@ -1,0 +1,12 @@
+# Gunakan image Airflow sebagai base image
+FROM apache/airflow:latest
+
+# Set working directory
+WORKDIR /usr/local/airflow
+
+# Install library yang diperlukan
+RUN pip install pymysql psycopg2-binary
+
+# Menjalankan Airflow scheduler dalam mode daemon
+# jalankan Airflow scheduler serta webserver
+# CMD airflow db upgrade && airflow scheduler -D && airflow webserver

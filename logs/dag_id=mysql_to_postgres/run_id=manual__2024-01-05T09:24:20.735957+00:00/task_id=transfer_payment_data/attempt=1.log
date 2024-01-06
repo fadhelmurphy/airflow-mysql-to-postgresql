@@ -1,0 +1,39 @@
+[2024-01-05T09:24:26.445+0000] {taskinstance.py:1957} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: mysql_to_postgres.transfer_payment_data manual__2024-01-05T09:24:20.735957+00:00 [queued]>
+[2024-01-05T09:24:26.462+0000] {taskinstance.py:1957} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: mysql_to_postgres.transfer_payment_data manual__2024-01-05T09:24:20.735957+00:00 [queued]>
+[2024-01-05T09:24:26.462+0000] {taskinstance.py:2171} INFO - Starting attempt 1 of 4
+[2024-01-05T09:24:26.478+0000] {taskinstance.py:2192} INFO - Executing <Task(PythonOperator): transfer_payment_data> on 2024-01-05 09:24:20.735957+00:00
+[2024-01-05T09:24:26.510+0000] {standard_task_runner.py:60} INFO - Started process 237 to run task
+[2024-01-05T09:24:26.542+0000] {standard_task_runner.py:87} INFO - Running: ['airflow', 'tasks', 'run', 'mysql_to_postgres', 'transfer_payment_data', 'manual__2024-01-05T09:24:20.735957+00:00', '--job-id', '2', '--raw', '--subdir', 'DAGS_FOLDER/mysql_to_postgres.py', '--cfg-path', '/tmp/tmp1z1hf4vj']
+[2024-01-05T09:24:26.569+0000] {standard_task_runner.py:88} INFO - Job 2: Subtask transfer_payment_data
+[2024-01-05T09:24:26.665+0000] {logging_mixin.py:188} WARNING - /home/airflow/.local/lib/python3.8/site-packages/airflow/settings.py:195 DeprecationWarning: The sql_alchemy_conn option in [core] has been moved to the sql_alchemy_conn option in [database] - the old setting has been used, but please update your config.
+[2024-01-05T09:24:26.760+0000] {task_command.py:423} INFO - Running <TaskInstance: mysql_to_postgres.transfer_payment_data manual__2024-01-05T09:24:20.735957+00:00 [running]> on host 1c774b72077b
+[2024-01-05T09:24:27.980+0000] {taskinstance.py:2481} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='mysql_to_postgres' AIRFLOW_CTX_TASK_ID='transfer_payment_data' AIRFLOW_CTX_EXECUTION_DATE='2024-01-05T09:24:20.735957+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2024-01-05T09:24:20.735957+00:00'
+[2024-01-05T09:24:28.056+0000] {logging_mixin.py:188} INFO - Error: The conn_id `mysql_default` isn't defined
+[2024-01-05T09:24:28.060+0000] {taskinstance.py:2699} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/opt/airflow/dags/mysql_to_postgres.py", line 20, in transfer_data
+    mysql_conn = mysql_hook.get_conn()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/providers/mysql/hooks/mysql.py", line 187, in get_conn
+    conn = self.connection or self.get_connection(getattr(self, self.conn_name_attr))
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/hooks/base.py", line 82, in get_connection
+    conn = Connection.get_connection_from_secrets(conn_id)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/connection.py", line 479, in get_connection_from_secrets
+    raise AirflowNotFoundException(f"The conn_id `{conn_id}` isn't defined")
+airflow.exceptions.AirflowNotFoundException: The conn_id `mysql_default` isn't defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 433, in _execute_task
+    result = execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 199, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 216, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/mysql_to_postgres.py", line 40, in transfer_data
+    raise AirflowFailException(f"Failed to transfer data: {str(e)}")
+airflow.exceptions.AirflowFailException: Failed to transfer data: The conn_id `mysql_default` isn't defined
+[2024-01-05T09:24:28.095+0000] {taskinstance.py:1138} INFO - Immediate failure requested. Marking task as FAILED. dag_id=mysql_to_postgres, task_id=transfer_payment_data, execution_date=20240105T092420, start_date=20240105T092426, end_date=20240105T092428
+[2024-01-05T09:24:28.148+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 2 for task transfer_payment_data (Failed to transfer data: The conn_id `mysql_default` isn't defined; 237)
+[2024-01-05T09:24:28.190+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2024-01-05T09:24:28.307+0000] {taskinstance.py:3281} INFO - 0 downstream tasks scheduled from follow-on schedule check
