@@ -45,18 +45,20 @@ services:
     #   retries: 32
 
   mysql:
-    image: mysql:latest
+    image: mysql:8.0
     restart: always
     environment:
       # - MYSQL_DATABASE=sakila
-      - MYSQL_USER=my_user
-      - MYSQL_PASSWORD=my_password
+      - MYSQL_USER=fadhel
+      - MYSQL_PASSWORD=root
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - mysql-data:/var/lib/mysql
       - ./sql/mysql:/docker-entrypoint-initdb.d
+      # - ./sql/mysql/sakila-schema.sql:/docker-entrypoint-initdb.d/sakila-schema.sql
+      # - ./sql/mysql/sakila-data.sql:/docker-entrypoint-initdb.d/sakila-data.sql
     # command: mysqld --user=root
-    command: --init-file=/docker-entrypoint-initdb.d/sakila-data.sql
+    # command: bash -c "/docker-entrypoint-initdb.d/init.sh && sleep 10"
     ports:
       - "3306:3306"
 
